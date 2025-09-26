@@ -1,0 +1,56 @@
+
+using Microsoft.AspNetCore.Mvc;
+using SimpleBlog.Models;
+using SimpleBlog.Services;
+
+namespace SimpleBlog.Controllers
+{
+    public class BlogController : Controller
+    {
+        private readonly BlogService _service;
+        public BlogController(BlogService service) => _service = service;
+
+        public IActionResult Index()
+        {
+            var posts = _service.GetAll();
+            return View(posts);
+        }
+
+        // GET: /Blog/Details/1
+        public IActionResult Details(int id)
+        {
+            var post = _service.Get(id);
+            if (post == null) return NotFound();
+            return View(post);
+        }
+
+       
+        public IActionResult Create() => View();
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(BlogPost post)
+        {
+            if (!ModelState.IsValid) return View(post);
+            _service.Add(post);
+            return RedirectToAction(nameof(Index));
+        }
+
+        
+        public IActionResult Edit(int id)
+        {
+            var post = _service.Get(id);
+            if (post == null) return NotFound();
+            return View(post);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(BlogPost post)
+        {
+            if (!ModelState.IsValid) return View(post);
+            _service.Update(post);
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}
